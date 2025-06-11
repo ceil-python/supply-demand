@@ -1,28 +1,12 @@
-from typing import Any, Callable, Dict, Optional, Union
-
-# Type aliases
-DemandProps = Dict[str, Any]
-SupplyMethod = Callable[[Optional[Any], "Scope"], Any]
-AsyncSupplyMethod = Callable[[Optional[Any], "Scope"], Any]
-ScopedDemand = Callable[[DemandProps], Any]
-SuppliersMerge = Dict[str, Union[bool, Dict[str, AsyncSupplyMethod], list]]
-ExtendSuppliersMethod = Callable[
-    [Dict[str, AsyncSupplyMethod], SuppliersMerge], Dict[str, AsyncSupplyMethod]
-]
-DemandReturn = Any
-
-
 class Scope:
-    def __init__(self, key: str, _type: str, path: str, demand: ScopedDemand):
+    def __init__(self, key, typ, path, demand):
         self.key = key
-        self.type = _type
+        self.type = typ
         self.path = path
         self.demand = demand
 
 
-def merge_suppliers(
-    original: Dict[str, AsyncSupplyMethod], merge_op: SuppliersMerge
-) -> Dict[str, AsyncSupplyMethod]:
+def merge_suppliers(original, merge_op):
     merged = {}
     if not merge_op.get("clear", False):
         merged.update(original)
@@ -32,45 +16,37 @@ def merge_suppliers(
     return merged
 
 
-async def global_demand(props: DemandProps) -> DemandReturn:
-    key = props["key"]
-    _type = props["type"]
-    path = props["path"]
+def global_demand(props):
+    key = props.get("key")
+    _type = props.get("type")
+    path = props.get("path")
     suppliers = props.get("suppliers", {})
 
     if not key or not _type or not path:
         raise ValueError("Key, Type, and Path are required in global_demand.")
 
-    print(f"Global demand called with: Key: {key}, Type: {_type}, Path: {path}")
-
     supplier_func = suppliers.get(_type)
     if supplier_func:
-        print(f"Calling supplier for type: {_type}")
-        return await supplier_func(
-            props.get("data"),
-            {
-                "key": key,
-                "type": _type,
-                "path": path,
-                "demand": create_scoped_demand(props),
-            },
-        )
-    print(f"Supplier not found for type: {_type}")
+        # Replace logger with print
+        print("Calling supplier for type:", _type, "at", path)
+        scope = Scope(key, _type, path, create_scoped_demand(props))
+        return supplier_func(props.get("data"), scope)
+    else:
+        print("Supplier not found for type:", _type, "at", path)
 
 
-def create_scoped_demand(super_props: DemandProps) -> ScopedDemand:
-    async def demand_func(props: DemandProps) -> DemandReturn:
+def create_scoped_demand(super_props):
+    def demand_func(props):
         demand_key = props.get("key", super_props["key"])
-
         if "type" not in props:
             raise ValueError("Type is required in scoped demand.")
 
-        path = f"{super_props['path']}/{demand_key}({props['type']})"
+        path = "%s/%s(%s)" % (super_props["path"], demand_key, props["type"])
         new_suppliers = merge_suppliers(
-            super_props["suppliers"], props.get("suppliers_merge", {})
+            super_props["suppliers"], props.get("suppliers", {})
         )
 
-        return await global_demand(
+        return global_demand(
             {
                 "key": demand_key,
                 "type": props["type"],
@@ -83,12 +59,10 @@ def create_scoped_demand(super_props: DemandProps) -> ScopedDemand:
     return demand_func
 
 
-async def supply_demand(
-    root_supplier: AsyncSupplyMethod, suppliers: Dict[str, AsyncSupplyMethod]
-) -> DemandReturn:
-    suppliers_copy = suppliers.copy()
+def supply_demand(root_supplier, suppliers):
+    suppliers_copy = dict(suppliers)
     suppliers_copy["$$root"] = root_supplier
-    return await global_demand(
+    return global_demand(
         {
             "key": "root",
             "type": "$$root",
