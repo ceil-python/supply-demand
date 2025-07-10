@@ -1,4 +1,3 @@
-import asyncio
 import unittest
 
 from SupplyDemand.supply_demand import supply_demand, cached  # etc.
@@ -71,6 +70,8 @@ class TestSupplyDemand(unittest.TestCase):
         self.assertIn("Type is required", result)
 
     def test_cached(self):
+        import asyncio
+
         async def test_body():
             call_count = [0]
 
@@ -105,6 +106,39 @@ class TestSupplyDemand(unittest.TestCase):
             return "ok"
 
         supply_demand(root_supplier, {"bar": foo_supplier})
+
+    def test_quick_start_example(self):
+        import asyncio
+
+        async def value_supplier(data, scope):
+            return 42
+
+        async def root_supplier(data, scope):
+            answer = await scope.demand({"type": "value"})
+            # Instead of print, we assert result in the test.
+            return answer
+
+        suppliers = {"value": value_supplier}
+        result = asyncio.run(supply_demand(root_supplier, suppliers))
+        self.assertEqual(result, 42)
+
+    def test_dependency_chain_example(self):
+        import asyncio
+
+        async def A(data, scope):
+            return 1
+
+        async def B(data, scope):
+            a_val = await scope.demand({"type": "A"})
+            return a_val + 5
+
+        async def root(data, scope):
+            result = await scope.demand({"type": "B"})
+            return result
+
+        suppliers = {"A": A, "B": B}
+        result = asyncio.run(supply_demand(root, suppliers))
+        self.assertEqual(result, 6)
 
 
 if __name__ == "__main__":
