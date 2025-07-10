@@ -1,3 +1,3 @@
-from .supply_demand import supply_demand, Scope, DemandReturn
+from .supply_demand import supply_demand, cached, Scope
 
-__version__ = "0.0.10"
+__version__ = "0.0.12"

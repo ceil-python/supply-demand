@@ -27,12 +27,10 @@ def global_demand(props):
 
     supplier_func = suppliers.get(_type)
     if supplier_func:
-        # Replace logger with print
-        print("Calling supplier for type:", _type, "at", path)
         scope = Scope(key, _type, path, create_scoped_demand(props))
         return supplier_func(props.get("data"), scope)
     else:
-        print("Supplier not found for type:", _type, "at", path)
+        raise RuntimeError(f"Supplier not found for type: {_type} at path: {path}")
 
 
 def create_scoped_demand(super_props):
@@ -41,7 +39,9 @@ def create_scoped_demand(super_props):
         if "type" not in props:
             raise ValueError("Type is required in scoped demand.")
 
-        path = "%s/%s(%s)" % (super_props["path"], demand_key, props["type"])
+        path = list(super_props["path"])  # shallow copy
+        path.append({"key": demand_key, "type": props["type"]})
+
         new_suppliers = merge_suppliers(
             super_props["suppliers"], props.get("suppliers", {})
         )
@@ -66,7 +66,25 @@ def supply_demand(root_supplier, suppliers):
         {
             "key": "root",
             "type": "$$root",
-            "path": "root",
+            "path": [{"key": "root", "type": "$$root"}],
             "suppliers": suppliers_copy,
         }
     )
+
+
+def cached(supplier):
+    cache = {"called": False, "value": None}
+
+    def wrapped(data, scope):
+        if data is not None:
+            raise ValueError("cached suppliers do not accept data.")
+
+        if cache["called"]:
+            return cache["value"]
+
+        # Not called yet, do the work
+        cache["called"] = True
+        cache["value"] = supplier(None, scope)
+        return cache["value"]
+
+    return wrapped
