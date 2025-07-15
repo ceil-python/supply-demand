@@ -1,5 +1,8 @@
 # supply-demand
 
+[![PyPI version](https://img.shields.io/pypi/v/supply-demand.svg)](https://pypi.org/project/supply-demand/)
+[![License](https://img.shields.io/pypi/l/supply-demand.svg)](LICENSE)
+
 A Python library for **dependency orchestration** and “demand/supply” resolution (function DI).  
 Inspired by advanced dependency-injection/inversion control, it lets you register “supplier” functions by key/type, and lets any supplier **demand** values from others—allowing composition, overrides, and dependency graphs.
 
@@ -17,7 +20,14 @@ Inspired by advanced dependency-injection/inversion control, it lets you registe
 
 ## Installation
 
-Copy the library file (`supply_demand.py`) to your project.
+```bash
+python -m pip install sypply-demand
+```
+or
+
+```bash
+python3 -m pip install sypply-demand
+```
 
 ---
 
