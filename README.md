@@ -21,12 +21,12 @@ Inspired by advanced dependency-injection/inversion control, it lets you registe
 ## Installation
 
 ```bash
-python -m pip install sypply-demand
+python -m pip install supply-demand
 ```
 or
 
 ```bash
-python3 -m pip install sypply-demand
+python3 -m pip install supply-demand
 ```
 
 ---
