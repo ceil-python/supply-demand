@@ -1,6 +1,6 @@
 import unittest
 
-from SupplyDemand.supply_demand import supply_demand, cached  # etc.
+from supply_demand import supply_demand, cached  # etc.
 
 
 class TestSupplyDemand(unittest.TestCase):

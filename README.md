@@ -21,6 +21,11 @@ Inspired by advanced dependency-injection/inversion control, it lets you registe
 ## Installation
 
 ```bash
+pip install supply-demand
+```
+or
+
+```bash
 python -m pip install supply-demand
 ```
 or

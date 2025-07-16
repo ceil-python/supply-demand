@@ -1,6 +1,6 @@
 [project]
 name = "supply-demand"
-version = "0.0.16"
+version = "0.1.0"
 authors = [{ name = "Sergey Shkatula", email = "sergey@ceil.dev" }]
 description = "Functional dependency paradigm"
 keywords = ["supply", "demand", "Supply-Demand", "functional"]
@@ -13,7 +13,7 @@ requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/SupplyDemand"]
+packages = ["src/supply_demand"]
 
 [project.urls]
 Homepage = "https://github.com/ceil-python/supply-demand"
