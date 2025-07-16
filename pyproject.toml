@@ -1,6 +1,6 @@
 [project]
 name = "supply-demand"
-version = "0.1.0"
+version = "0.1.1"
 authors = [{ name = "Sergey Shkatula", email = "sergey@ceil.dev" }]
 description = "Functional dependency paradigm"
 keywords = ["supply", "demand", "Supply-Demand", "functional"]

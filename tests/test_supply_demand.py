@@ -11,6 +11,20 @@ class TestSupplyDemand(unittest.TestCase):
         result = supply_demand(simple_supplier, {})
         self.assertEqual(result, "simple_value")
 
+    def test_available_types(self):
+
+        def a_supplier(data, scope):
+            return "A"
+
+        def b_supplier(data, scope):
+            return "B"
+
+        def main_supplier(data, scope):
+            return scope.available_supplier_types
+
+        result = supply_demand(main_supplier, {"a": a_supplier, "b": b_supplier})
+        self.assertEqual(result, ["a", "b", "$$root"])
+
     def test_nested_demand(self):
         def root_supplier(data, scope):
             # Demand 'bar' of type 'baz'

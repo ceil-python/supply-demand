@@ -1,9 +1,10 @@
 class Scope:
-    def __init__(self, key, typ, path, demand):
+    def __init__(self, key, typ, path, available_supplier_types, demand):
         self.key = key
         self.type = typ
         self.path = path
         self.demand = demand
+        self.available_supplier_types = available_supplier_types
 
 
 def merge_suppliers(original, merge_op):
@@ -27,7 +28,10 @@ def global_demand(props):
 
     supplier_func = suppliers.get(_type)
     if supplier_func:
-        scope = Scope(key, _type, path, create_scoped_demand(props))
+        available_supplier_types = list(suppliers.keys())
+        scope = Scope(
+            key, _type, path, available_supplier_types, create_scoped_demand(props)
+        )
         return supplier_func(props.get("data"), scope)
     else:
         raise RuntimeError(f"Supplier not found for type: {_type} at path: {path}")
